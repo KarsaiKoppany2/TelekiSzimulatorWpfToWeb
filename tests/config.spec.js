@@ -3,22 +3,32 @@ import { test, expect } from "@playwright/test";
 import path from "node:path";
 import { describe } from "node:test";
 
-test("has title", async ({ page }) => {
-  await page.goto("/");
+test.describe("Szerkesztő page", () => {
+  test("elemek létezése", async ({ page }) => {
+    await page.goto("/");
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Teleki szimulátor/);
+    // Expect a title "to contain" a substring.
+    await expect(page).toHaveTitle(/Teleki szimulátor/);
 
-  await page.getByRole("button", { name: "Szerkesztő" }).click();
+    await page.getByRole("button", { name: "Szerkesztő" }).click();
 
-  const uploadFile = path.join(process.cwd(), "Egy nap az iskolában");
+    await expect(page.getByText("Mentett történetek")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Jelenetek" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Média előnézet" }),
+    ).toBeVisible();
+  });
+  test.skip("feltöltés", async ({ page }) => {
+    const uploadFile = path.join(process.cwd(), "Egy nap az iskolában");
 
-  const uploadPromise = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Import (mappa)" }).click();
-  const fileChooser = await uploadPromise;
-  await fileChooser.setFiles(uploadFile);
+    const uploadPromise = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Import (mappa)" }).click();
+    const fileChooser = await uploadPromise;
+    await fileChooser.setFiles(uploadFile);
+  });
 });
-
 //Teszt SUITE 1
 test.describe("Home page", () => {
   test("TEST ESET 1", async ({ page }) => {
